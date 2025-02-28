@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiTestApp.MainPage"
+             Title="Drag &amp; Drop Demo">
+
+    <VerticalStackLayout Padding="10" Spacing="10">
+
+        <!-- Input area at the top -->
+        <HorizontalStackLayout Spacing="5">
+            <Entry x:Name="WidthEntry"
+                   Placeholder="Frame Width"
+                   Keyboard="Numeric"
+                   WidthRequest="100"/>
+            <Entry x:Name="HeightEntry"
+                   Placeholder="Frame Height"
+                   Keyboard="Numeric"
+                   WidthRequest="100"/>
+            <Button Text="Add Rectangle"
+                    Clicked="OnAddRectangleClicked" />
+        </HorizontalStackLayout>
+
+        <!-- Scrollable area for the "paper sheet" -->
+        <ScrollView>
+            <!-- We'll manually size the AbsoluteLayout to represent the "paper" -->
+            <AbsoluteLayout x:Name="PaperLayout"
+                            BackgroundColor="LightGray"
+                            WidthRequest="1000"
+                            HeightRequest="800">
+                <!-- Dynamically added frames go here -->
+            </AbsoluteLayout>
+        </ScrollView>
+
+    </VerticalStackLayout>
+</ContentPage>
+
