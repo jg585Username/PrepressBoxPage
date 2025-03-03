@@ -7,10 +7,10 @@
         <!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
 
         <!-- Note for MacCatalyst:
-        The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
-        When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
-        The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
-        either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
+             The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
+             When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
+             The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
+             either BOTH runtimes must be indicated or ONLY maccatalyst-x64. -->
         <!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
 
         <OutputType>Exe</OutputType>
@@ -44,17 +44,13 @@
     <ItemGroup>
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4"/>
-
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128"/>
-
         <!-- Images -->
         <MauiImage Include="Resources\Images\*"/>
         <MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185"/>
-
         <!-- Custom Fonts -->
         <MauiFont Include="Resources\Fonts\*"/>
-
         <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)"/>
     </ItemGroup>
@@ -63,5 +59,20 @@
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0"/>
     </ItemGroup>
+
+    <!-- Target to clean the macCatalyst app bundle before code signing -->
+    <Target Name="CleanMaccatalystBundle" BeforeTargets="Codesign" Condition="'$(TargetFramework)'=='net9.0-maccatalyst'">
+        <Message Importance="high" Text="Cleaning extended attributes from the macCatalyst app bundle before code signing..." />
+        <!-- Create a clean copy without extended attributes -->
+        <Exec Command="ditto --norsrc &quot;$(OutputPath)maccatalyst-arm64/MauiTestApp.app&quot; &quot;$(OutputPath)maccatalyst-arm64/MauiTestApp_clean.app&quot;" />
+        <!-- Delete the original bundle -->
+        <Exec Command="rm -rf &quot;$(OutputPath)maccatalyst-arm64/MauiTestApp.app&quot;" />
+        <!-- Rename the clean copy to replace the original -->
+        <Exec Command="mv &quot;$(OutputPath)maccatalyst-arm64/MauiTestApp_clean.app&quot; &quot;$(OutputPath)maccatalyst-arm64/MauiTestApp.app&quot;" />
+        <!-- Explicitly remove any remaining specific extended attributes -->
+        <Exec Command="xattr -rd com.apple.FinderInfo &quot;$(OutputPath)maccatalyst-arm64/MauiTestApp.app&quot;" ContinueOnError="true" />
+        <Exec Command="xattr -rd com.apple.fileprovider.fpfs#P &quot;$(OutputPath)maccatalyst-arm64/MauiTestApp.app&quot;" ContinueOnError="true" />
+        <Exec Command="xattr -rd com.apple.provenance &quot;$(OutputPath)maccatalyst-arm64/MauiTestApp.app&quot;" ContinueOnError="true" />
+    </Target>
 
 </Project>
